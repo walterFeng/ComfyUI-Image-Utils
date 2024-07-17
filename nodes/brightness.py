@@ -5,16 +5,20 @@ import torchvision.transforms as transforms
 
 def calculate_brightness(tensor):
     print('ndim', tensor.ndim, tensor.shape[0])
+
+    # Ensure the tensor is at least 3D
     if tensor.ndim == 4:
         tensor = tensor.squeeze(0)
-    if tensor.ndim == 2:
+    elif tensor.ndim == 2:
         tensor = tensor.unsqueeze(0)
+
+    # Ensure the tensor is RGB or RGBA
     if tensor.shape[0] == 1:
         tensor = torch.cat([tensor] * 3, dim=0)
+        print('ndim 1', tensor.ndim, tensor.shape[0])
 
-    tensor = tensor.expand(4, -1, -1)
 
-    print('shape2', tensor.ndim, tensor.shape[0])
+    # Check if the tensor is in a valid shape
     if tensor.shape[0] not in [3, 4]:
         raise ValueError("Unsupported tensor shape. Only 3D tensors with shape (3, H, W) or (4, H, W) are supported.")
 
@@ -26,6 +30,7 @@ def calculate_brightness(tensor):
     else:
         rgb_tensor = tensor  # RGB
 
+    # Calculate brightness
     brightness = (0.299 * rgb_tensor[0] + 0.587 * rgb_tensor[1] + 0.114 * rgb_tensor[2]).mean()
     return brightness.item()
 
