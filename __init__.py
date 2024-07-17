@@ -1,5 +1,5 @@
-from .nodes.brightness import ComputeImageBrightness
+from .nodes.brightness import CalculateImageBrightness
 
 NODE_CLASS_MAPPINGS = {
-    "Compute Image Brightness": ComputeImageBrightness,
+    "Calculate Image Brightness": CalculateImageBrightness,
 }

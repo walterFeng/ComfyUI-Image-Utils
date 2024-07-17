@@ -1,42 +1,23 @@
-import os
-from io import BytesIO
-
-import requests
+import torch
 from PIL import Image
 
 
-def calculate_brightness(img):
-    pixels = img.getdata()
-    brightness = 0
-    count = 0
-    for pixel in pixels:
-        if len(pixel) == 3:
-            brightness += (0.299 * pixel[0] + 0.587 * pixel[1] + 0.114 * pixel[2])
-            count += 1
-        elif len(pixel) == 4 and pixel[3] != 0:
-            brightness += (0.299 * pixel[0] + 0.587 * pixel[1] + 0.114 * pixel[2])
-            count += 1
-
-    if count != 0:
-        average_brightness = brightness / count
+def calculate_brightness(tensor):
+    if len(tensor.shape) == 3 and tensor.shape[0] == 4:  # RGBA
+        rgb_tensor = tensor[:3]
+        alpha_channel = tensor[3]
+        valid_mask = alpha_channel != 0
+        rgb_tensor = rgb_tensor[:, valid_mask]
+    elif len(tensor.shape) == 3 and tensor.shape[0] == 3:  # RGB
+        rgb_tensor = tensor
     else:
-        average_brightness = 0
+        raise ValueError("Unsupported tensor shape. Only 3D tensors with shape (3, H, W) or (4, H, W) are supported.")
 
-    print(f'Average brightness (excluding transparent areas): {average_brightness}')
-    return average_brightness
+    brightness = (0.299 * rgb_tensor[0] + 0.587 * rgb_tensor[1] + 0.114 * rgb_tensor[2]).mean()
+    return brightness.item()
 
-def load_image(image_source):
-    if image_source.startswith('http'):
-        print(image_source)
-        response = requests.get(image_source)
-        img = Image.open(BytesIO(response.content))
-        file_name = image_source.split('/')[-1]
-    else:
-        img = Image.open(image_source)
-        file_name = os.path.basename(image_source)
-    return img, file_name
 
-class ComputeImageBrightness:
+class CalculateImageBrightness:
     @classmethod
     def INPUT_TYPES(cls):
         return {
@@ -45,20 +26,22 @@ class ComputeImageBrightness:
             }
         }
 
-    RETURN_TYPES = ("IMAGE", "FLOAT", "FLOAT", "FLOAT")
+    RETURN_TYPES = ("image", "brightness", "brightness_percent", "average_multiple")
     FUNCTION = "load"
     CATEGORY = "image"
 
     def load(self, image):
         brightness = calculate_brightness(image)
         brightness_percent = brightness / 255.0
-        brightness_rate = 0.5 / brightness_percent
-        return (image, round(brightness, 3), round(brightness_percent, 3), round(brightness_rate, 3))
+        average_multiple = 0.5 / brightness_percent
+        return (image, round(brightness, 3), round(brightness_percent, 3), round(average_multiple, 3))
 
 
 if __name__ == "__main__":
-    img, name = load_image("https://pic35.photophoto.cn/20150511/0034034892281415_b.jpg")
-    brightness = calculate_brightness(img)
+    img = Image.open("path_to_your_image.png").convert("RGBA")
+    tensor = torch.tensor(list(img.getdata()), dtype=torch.float32).reshape(img.size[1], img.size[0], 4).permute(2, 0,
+                                                                                                                 1)
+    brightness = calculate_brightness(tensor)
     brightness_percent = brightness / 255.0
     brightness_rate = 0.5 / brightness_percent
     print(round(brightness, 3), round(brightness_percent, 3), round(brightness_rate, 3))
