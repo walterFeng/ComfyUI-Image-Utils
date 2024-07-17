@@ -1,5 +1,6 @@
 import torch
 from PIL import Image
+import torchvision.transforms as transforms
 
 
 def calculate_brightness(tensor):
@@ -16,10 +17,10 @@ def calculate_brightness(tensor):
     if tensor.shape[0] == 4:  # RGBA
         rgb_tensor = tensor[:3]
         alpha_channel = tensor[3]
-        valid_mask = alpha_channel != 0
+        valid_mask = alpha_channel > 0
         rgb_tensor = rgb_tensor[:, valid_mask]
-    elif tensor.shape[0] == 3:  # RGB
-        rgb_tensor = tensor
+    else:
+        rgb_tensor = tensor  # RGB
 
     brightness = (0.299 * rgb_tensor[0] + 0.587 * rgb_tensor[1] + 0.114 * rgb_tensor[2]).mean()
     return brightness.item()
@@ -39,6 +40,13 @@ class CalculateImageBrightness:
     CATEGORY = "image"
 
     def load(self, image):
+        if isinstance(image, Image.Image):
+            transform = transforms.ToTensor()
+            image = transform(image)
+
+        if image.ndim == 3 and image.shape[2] in [3, 4]:
+            image = image.permute(2, 0, 1)
+
         brightness = calculate_brightness(image)
         brightness_percent = brightness / 255.0
         average_multiple = 0.5 / brightness_percent
@@ -46,10 +54,15 @@ class CalculateImageBrightness:
 
 
 if __name__ == "__main__":
-    img = Image.open("path_to_your_image.png").convert("RGBA")
-    tensor = torch.tensor(list(img.getdata()), dtype=torch.float32).reshape(img.size[1], img.size[0], 4).permute(2, 0,
-                                                                                                                 1)
-    brightness = calculate_brightness(tensor)
-    brightness_percent = brightness / 255.0
-    brightness_rate = 0.5 / brightness_percent
-    print(round(brightness, 3), round(brightness_percent, 3), round(brightness_rate, 3))
+    image = Image.open("path/to/image.jpg").convert("RGB")
+    transform = transforms.ToTensor()
+    image_tensor = transform(image)
+
+    brightness = calculate_brightness(image_tensor)
+    print(f"Brightness: {brightness}")
+
+    calc = CalculateImageBrightness()
+    image, brightness, brightness_percent, average_multiple = calc.load(image_tensor)
+    print(f"Brightness: {brightness}")
+    print(f"Brightness Percent: {brightness_percent}")
+    print(f"Average Multiple: {average_multiple}")
