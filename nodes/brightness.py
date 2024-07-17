@@ -1,11 +1,9 @@
 import torch
-from PIL import Image
 import torchvision.transforms as transforms
+from PIL import Image
 
 
 def calculate_brightness(tensor):
-    print('ndim', tensor.ndim, tensor.shape[0])
-
     # Ensure the tensor is at least 3D
     if tensor.ndim == 4:
         tensor = tensor.squeeze(0)
@@ -15,8 +13,6 @@ def calculate_brightness(tensor):
     # Ensure the tensor is RGB or RGBA
     if tensor.shape[0] == 1:
         tensor = torch.cat([tensor] * 3, dim=0)
-        print('ndim 1', tensor.ndim, tensor.shape[0])
-
 
     # Check if the tensor is in a valid shape
     if tensor.shape[0] not in [3, 4]:
@@ -50,10 +46,10 @@ class CalculateImageBrightness:
 
     def load(self, image):
         if isinstance(image, Image.Image):
+            image = image.convert("RGBA")
             transform = transforms.ToTensor()
             image = transform(image)
 
-        print('shape1', image.shape[2])
         brightness = calculate_brightness(image)
         brightness_percent = brightness / 255.0
         average_multiple = 0.5 / brightness_percent
@@ -61,15 +57,15 @@ class CalculateImageBrightness:
 
 
 if __name__ == "__main__":
-    image = Image.open("path/to/image.jpg").convert("RGB")
+    image = Image.open("../4.png").convert("RGBA")
     transform = transforms.ToTensor()
     image_tensor = transform(image)
+    print(calculate_brightness(image_tensor))
 
-    brightness = calculate_brightness(image_tensor)
-    print(f"Brightness: {brightness}")
+    rgb_tensor = torch.rand(3, 100, 100)
+    rgba_tensor = torch.rand(4, 100, 100)
+    gray_tensor = torch.rand(1, 100, 100)
 
-    calc = CalculateImageBrightness()
-    image, brightness, brightness_percent, average_multiple = calc.load(image_tensor)
-    print(f"Brightness: {brightness}")
-    print(f"Brightness Percent: {brightness_percent}")
-    print(f"Average Multiple: {average_multiple}")
+    print(calculate_brightness(rgb_tensor))
+    print(calculate_brightness(rgba_tensor))
+    print(calculate_brightness(gray_tensor))
