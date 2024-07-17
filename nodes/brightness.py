@@ -3,6 +3,11 @@ from PIL import Image
 
 
 def calculate_brightness(tensor):
+    if tensor.ndim == 4:
+        tensor = tensor.squeeze(0)
+    if tensor.ndim == 2:
+        tensor = tensor.unsqueeze(0)
+
     if len(tensor.shape) == 3 and tensor.shape[0] == 4:  # RGBA
         rgb_tensor = tensor[:3]
         alpha_channel = tensor[3]
