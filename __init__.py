@@ -1,5 +1,5 @@
-from .nodes.brightness import LoadImageWithBrightness
+from .nodes.brightness import ComputeImageBrightness
 
 NODE_CLASS_MAPPINGS = {
-    "LoadImageWithBrightness": LoadImageWithBrightness,
+    "Compute Image Brightness": ComputeImageBrightness,
 }
