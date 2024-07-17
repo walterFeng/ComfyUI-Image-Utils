@@ -7,16 +7,19 @@ def calculate_brightness(tensor):
         tensor = tensor.squeeze(0)
     if tensor.ndim == 2:
         tensor = tensor.unsqueeze(0)
+    if tensor.shape[0] == 1:
+        tensor = torch.cat([tensor] * 3, dim=0)
 
-    if len(tensor.shape) == 3 and tensor.shape[0] == 4:  # RGBA
+    if tensor.shape[0] not in [3, 4]:
+        raise ValueError("Unsupported tensor shape. Only 3D tensors with shape (3, H, W) or (4, H, W) are supported.")
+
+    if tensor.shape[0] == 4:  # RGBA
         rgb_tensor = tensor[:3]
         alpha_channel = tensor[3]
         valid_mask = alpha_channel != 0
         rgb_tensor = rgb_tensor[:, valid_mask]
-    elif len(tensor.shape) == 3 and tensor.shape[0] == 3:  # RGB
+    elif tensor.shape[0] == 3:  # RGB
         rgb_tensor = tensor
-    else:
-        raise ValueError("Unsupported tensor shape. Only 3D tensors with shape (3, H, W) or (4, H, W) are supported.")
 
     brightness = (0.299 * rgb_tensor[0] + 0.587 * rgb_tensor[1] + 0.114 * rgb_tensor[2]).mean()
     return brightness.item()
