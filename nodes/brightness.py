@@ -11,6 +11,7 @@ def calculate_brightness(tensor):
     if tensor.shape[0] == 1:
         tensor = torch.cat([tensor] * 3, dim=0)
 
+    print('shape2', tensor.ndim, tensor.shape[0])
     if tensor.shape[0] not in [3, 4]:
         raise ValueError("Unsupported tensor shape. Only 3D tensors with shape (3, H, W) or (4, H, W) are supported.")
 
@@ -40,6 +41,8 @@ class CalculateImageBrightness:
     CATEGORY = "image"
 
     def load(self, image):
+        print('shape', image.shape[2])
+
         if isinstance(image, Image.Image):
             transform = transforms.ToTensor()
             image = transform(image)
@@ -47,6 +50,7 @@ class CalculateImageBrightness:
         if image.ndim == 3 and image.shape[2] in [3, 4]:
             image = image.permute(2, 0, 1)
 
+        print('shape1', image.shape[2])
         brightness = calculate_brightness(image)
         brightness_percent = brightness / 255.0
         average_multiple = 0.5 / brightness_percent
