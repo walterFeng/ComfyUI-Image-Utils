@@ -4,12 +4,15 @@ import torchvision.transforms as transforms
 
 
 def calculate_brightness(tensor):
+    print('ndim', tensor.ndim, tensor.shape[0])
     if tensor.ndim == 4:
         tensor = tensor.squeeze(0)
     if tensor.ndim == 2:
         tensor = tensor.unsqueeze(0)
     if tensor.shape[0] == 1:
         tensor = torch.cat([tensor] * 3, dim=0)
+
+    tensor = tensor.reshape(4, -1, -1)
 
     print('shape2', tensor.ndim, tensor.shape[0])
     if tensor.shape[0] not in [3, 4]:
@@ -41,14 +44,9 @@ class CalculateImageBrightness:
     CATEGORY = "image"
 
     def load(self, image):
-        print('shape', image.shape[2])
-
         if isinstance(image, Image.Image):
             transform = transforms.ToTensor()
             image = transform(image)
-
-        if image.ndim == 3 and image.shape[2] in [3, 4]:
-            image = image.permute(2, 0, 1)
 
         print('shape1', image.shape[2])
         brightness = calculate_brightness(image)
