@@ -12,7 +12,7 @@ def calculate_brightness(tensor):
     if tensor.shape[0] == 1:
         tensor = torch.cat([tensor] * 3, dim=0)
 
-    tensor = tensor.reshape(4, -1, -1)
+    tensor = tensor.expand(4, -1, -1)
 
     print('shape2', tensor.ndim, tensor.shape[0])
     if tensor.shape[0] not in [3, 4]:
