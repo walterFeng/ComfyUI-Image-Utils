@@ -5,6 +5,8 @@ import torch
 import torchvision.transforms as transforms
 from PIL import Image
 
+from nodes.load_image_by_url import LoadImageByUrlOrPath
+
 def load_image(image_source):
     img = Image.open(image_source)
     file_name = os.path.basename(image_source)
@@ -12,8 +14,11 @@ def load_image(image_source):
 
 
 def calculate_brightness(tensor):
-    if tensor.ndim == 4 and tensor.shape[1] in [1, 2, 3, 4]:
+    if tensor.ndim == 4:
         tensor = tensor.squeeze(0)  # Remove batch dimension if present
+
+    if tensor.ndim >= 3 and tensor.shape[2] in [1, 2, 3, 4]:
+        tensor = np.transpose(tensor, (2, 0, 1))  # (C, H, W)
 
     if tensor.ndim == 2:  # Handle grayscale images
         tensor = tensor.unsqueeze(0)  # Add batch dimension
@@ -37,6 +42,17 @@ def calculate_brightness(tensor):
     brightness = (0.299 * rgb_tensor[0] + 0.587 * rgb_tensor[1] + 0.114 * rgb_tensor[2]).mean()
     return brightness.item()
 
+def tensor2rgba(t: torch.Tensor) -> torch.Tensor:
+    size = t.size()
+    if len(size) < 4:
+        return t.unsqueeze(3).repeat(1, 1, 1, 4)
+    elif size[3] == 1:
+        return t.repeat(1, 1, 1, 4)
+    elif size[3] == 3:
+        alpha_tensor = torch.ones((size[0], size[1], size[2], 1))
+        return torch.cat((t, alpha_tensor), dim=3)
+    else:
+        return t
 
 class CalculateImageBrightness:
     @classmethod
@@ -57,20 +73,19 @@ class CalculateImageBrightness:
             transform = transforms.ToTensor()
             image = transform(image)
 
-        if image.ndim >= 3 and image.shape[2] in [1, 2, 3, 4]:
-            image = np.transpose(image, (2, 0, 1))  # (C, H, W)
-
-        brightness = calculate_brightness(image)
+        brightness = calculate_brightness(tensor2rgba(image))
         inverted_brightness = 0.5 / brightness
         return (image, round(brightness, 3), round(inverted_brightness, 3))
 
 
 if __name__ == "__main__":
     print("main")
-    #loader = LoadImageByUrlOrPath()
-    #img_hwc, img_chw = loader.load("https://oss-shared.oss-cn-beijing.aliyuncs.com/uploads/test-111-111.png")
+    loader = LoadImageByUrlOrPath()
+    img_hwc, img_chw = loader.load("../heisetu.png")
 
-    #calc = CalculateImageBrightness()
-    #image, brightness, average_multiple = calc.load(img_hwc)
-    #print(f"Brightness: {brightness}")
-    #print(f"Average Multiple: {average_multiple}")
+    print(tensor2rgba(img_hwc).shape)
+
+    calc = CalculateImageBrightness()
+    image, brightness, average_multiple = calc.load(tensor2rgba(img_hwc))
+    print(f"Brightness: {brightness}")
+    print(f"Average Multiple: {average_multiple}")
