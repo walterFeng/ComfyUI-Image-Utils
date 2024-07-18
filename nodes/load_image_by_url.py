@@ -20,8 +20,8 @@ def load_image(image_source):
         img = Image.open(BytesIO(response.content)).convert("RGBA")
         file_name = image_source.split('/')[-1]
     else:
-        img = Image.open(image_source)
-        file_name = os.path.basename(image_source).convert("RGBA")
+        img = Image.open(image_source).convert("RGBA")
+        file_name = os.path.basename(image_source)
     return img, file_name
 
 
