@@ -48,6 +48,7 @@ class CalculateImageBrightness:
         }
 
     RETURN_TYPES = ("IMAGE", "FLOAT", "FLOAT")
+    RETURN_NAMES = ("IMAGE", "brightness", "inverted brightness")
     FUNCTION = "load"
     CATEGORY = "image"
 
@@ -60,8 +61,8 @@ class CalculateImageBrightness:
             image = np.transpose(image, (2, 0, 1))  # (C, H, W)
 
         brightness = calculate_brightness(image)
-        average_multiple = 0.5 / brightness
-        return (image, round(brightness, 3), round(average_multiple, 3))
+        inverted_brightness = 0.5 / brightness
+        return (image, round(brightness, 3), round(inverted_brightness, 3))
 
 
 if __name__ == "__main__":
