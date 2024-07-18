@@ -5,6 +5,8 @@ import torch
 import torchvision.transforms as transforms
 from PIL import Image
 
+from nodes.load_image_by_url import LoadImageByUrlOrPath
+
 
 def load_image(image_source):
     img = Image.open(image_source)
@@ -48,7 +50,7 @@ class CalculateImageBrightness:
             }
         }
 
-    RETURN_TYPES = ("image", "brightness", "brightness_percent", "average_multiple")
+    RETURN_TYPES = ("image", "brightness", "average_multiple")
     FUNCTION = "load"
     CATEGORY = "image"
 
@@ -58,19 +60,18 @@ class CalculateImageBrightness:
             image = transform(image)
 
         if image.ndim >= 3 and image.shape[2] in [1, 2, 3, 4]:
-            img_first_frame = image[0]  # (H, W, C)
-            image = np.transpose(img_first_frame, (2, 0, 1))  # (C, H, W)
+            image = np.transpose(image, (2, 0, 1))  # (C, H, W)
 
         brightness = calculate_brightness(image)
-        brightness_percent = brightness / 255.0
-        average_multiple = 0.5 / brightness_percent
-        return (image, round(brightness, 3), round(brightness_percent, 3), round(average_multiple, 3))
+        average_multiple = 0.5 / brightness
+        return (image, round(brightness, 3), round(average_multiple, 3))
 
 
 if __name__ == "__main__":
-    image_tensor = load_image("test.png")
+    loader = LoadImageByUrlOrPath()
+    img_hwc, img_chw = loader.load("https://oss-shared.oss-cn-beijing.aliyuncs.com/uploads/test-111-111.png")
+
     calc = CalculateImageBrightness()
-    image, brightness, brightness_percent, average_multiple = calc.load(image_tensor)
+    image, brightness, average_multiple = calc.load(img_hwc)
     print(f"Brightness: {brightness}")
-    print(f"Brightness Percent: {brightness_percent}")
     print(f"Average Multiple: {average_multiple}")
