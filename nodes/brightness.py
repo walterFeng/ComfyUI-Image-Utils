@@ -5,9 +5,6 @@ import torch
 import torchvision.transforms as transforms
 from PIL import Image
 
-from nodes.load_image_by_url import LoadImageByUrlOrPath
-
-
 def load_image(image_source):
     img = Image.open(image_source)
     file_name = os.path.basename(image_source)
@@ -50,7 +47,7 @@ class CalculateImageBrightness:
             }
         }
 
-    RETURN_TYPES = ("image", "brightness", "average_multiple")
+    RETURN_TYPES = ("IMAGE", "brightness", "average_multiple")
     FUNCTION = "load"
     CATEGORY = "image"
 
@@ -68,10 +65,11 @@ class CalculateImageBrightness:
 
 
 if __name__ == "__main__":
-    loader = LoadImageByUrlOrPath()
-    img_hwc, img_chw = loader.load("https://oss-shared.oss-cn-beijing.aliyuncs.com/uploads/test-111-111.png")
+    print("main")
+    #loader = LoadImageByUrlOrPath()
+    #img_hwc, img_chw = loader.load("https://oss-shared.oss-cn-beijing.aliyuncs.com/uploads/test-111-111.png")
 
-    calc = CalculateImageBrightness()
-    image, brightness, average_multiple = calc.load(img_hwc)
-    print(f"Brightness: {brightness}")
-    print(f"Average Multiple: {average_multiple}")
+    #calc = CalculateImageBrightness()
+    #image, brightness, average_multiple = calc.load(img_hwc)
+    #print(f"Brightness: {brightness}")
+    #print(f"Average Multiple: {average_multiple}")
