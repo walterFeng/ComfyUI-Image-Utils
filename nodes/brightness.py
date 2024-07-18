@@ -47,7 +47,7 @@ class CalculateImageBrightness:
             }
         }
 
-    RETURN_TYPES = ("IMAGE", "FLOAT", "FLOAT")
+    RETURN_TYPES = ("IMAGE", "FLOAT", "STRING")
     FUNCTION = "load"
     CATEGORY = "image"
 
