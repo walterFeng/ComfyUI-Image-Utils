@@ -34,7 +34,7 @@ class LoadImageByUrlOrPath:
             }
         }
 
-    RETURN_TYPES = ("IMAGE", "image")
+    RETURN_TYPES = ("IMAGE", "IMAGE")
     FUNCTION = "load"
     CATEGORY = "image"
 
