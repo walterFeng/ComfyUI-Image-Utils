@@ -5,7 +5,7 @@ import torch
 import torchvision.transforms as transforms
 from PIL import Image
 
-from nodes.load_image_by_url import LoadImageByUrlOrPath
+#from nodes.load_image_by_url import LoadImageByUrlOrPath
 
 def load_image(image_source):
     img = Image.open(image_source)
@@ -80,12 +80,12 @@ class CalculateImageBrightness:
 
 if __name__ == "__main__":
     print("main")
-    loader = LoadImageByUrlOrPath()
-    img_hwc, img_chw = loader.load("../heisetu.png")
+    #loader = LoadImageByUrlOrPath()
+    #img_hwc, img_chw = loader.load("../heisetu.png")
 
-    print(tensor2rgba(img_hwc).shape)
+    #print(tensor2rgba(img_hwc).shape)
 
-    calc = CalculateImageBrightness()
-    image, brightness, average_multiple = calc.load(tensor2rgba(img_hwc))
-    print(f"Brightness: {brightness}")
-    print(f"Average Multiple: {average_multiple}")
+    #calc = CalculateImageBrightness()
+    #image, brightness, average_multiple = calc.load(tensor2rgba(img_hwc))
+    #print(f"Brightness: {brightness}")
+    #print(f"Average Multiple: {average_multiple}")
