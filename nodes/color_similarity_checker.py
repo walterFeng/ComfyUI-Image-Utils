@@ -1,30 +1,32 @@
-import numpy as np
-import tensorflow as tf
 import torchvision.transforms as transforms
 from PIL import Image
-from skimage import color
 
 
-def color_similarity_checker(tensor_image, threshold=20):
+def color_similarity_checker(tensor, threshold):
+    if tensor.ndim == 4:
+        tensor = tensor.squeeze(0)  # Remove batch dimension if present
+
+    if tensor.ndim >= 3 and tensor.shape[0] in [1, 2, 3, 4]:
+        tensor = tensor.permute(1, 2, 0)  # shape to (H, W, C)
+
+    # Delete alpha channel
+    tensor = tensor[:, :, :3]
+
     # Convert Tensor to a NumPy array
-    image_np = tensor_image.numpy()
+    np_image = (tensor * 255).numpy()
 
-    # Calculate the average color of the picture
-    average_color = tf.reduce_mean(image_np, axis=(0, 1)).numpy()
+    # Calculate the mean and variance of each channel
+    std_dev = np_image.std(axis=(0, 1))
+    # mean = np_image.mean(axis=(0, 1))
+    # print(f'Mean: {mean}')
+    # print(f'Standard Deviation: {std_dev}')
 
-    # Convert images to Lab color space
-    image_lab = color.rgb2lab(image_np / 255.0)
-    average_color_lab = color.rgb2lab(np.array([[average_color / 255.0]]))[0][0]
+    # check colors are similar
+    print(std_dev.max())
+    if std_dev.max() < threshold:
+        return True
+    return False
 
-    # Calculate the difference between each pixel and the average color (CIEDE2000)
-    color_differences = color.deltaE_ciede2000(image_lab, average_color_lab)
-
-    # Determine how many pixels of color difference are within the threshold range
-    similar_pixels = tf.reduce_sum(tf.cast(color_differences < threshold, tf.int32)).numpy()
-    total_pixels = image_np.shape[0] * image_np.shape[1]
-
-    # Judgment result
-    return similar_pixels / total_pixels > 0.95  # Set a percentage, 95%
 
 class ColorSimilarityChecker:
     @classmethod
@@ -56,3 +58,4 @@ if __name__ == "__main__":
     image = transform(image)
     calc = ColorSimilarityChecker()
     image, is_similarity = calc.load(image, 30)
+    print(is_similarity)
