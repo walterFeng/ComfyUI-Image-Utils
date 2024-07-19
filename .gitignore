@@ -17,3 +17,4 @@ nbproject
 # env
 .env
 /*.env
+nodes/__pycache__/
