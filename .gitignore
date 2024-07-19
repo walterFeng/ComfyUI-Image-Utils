@@ -18,3 +18,6 @@ nbproject
 .env
 /*.env
 nodes/__pycache__/
+
+# test
+test.png
