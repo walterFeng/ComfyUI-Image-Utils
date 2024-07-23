@@ -33,4 +33,4 @@ def check_shape(tensor, toType="HWC", removeAlpha=True):
     # Convert to grayscale, ensuring correct handling of PNG with alpha channel
     if removeAlpha and tensor.shape[cIndexed] == 4:  # Check if image has an alpha channel
         tensor = tensor[:, :, :3] if toType == "HWC" else tensor[:3, :, :]  # to RGB
-    return tensor, cIndexed
+    return tensor

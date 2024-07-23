@@ -13,14 +13,14 @@ def load_image(image_source):
 
 
 def calculate_brightness(tensor):
-    tensor, cIndexed = check_shape(tensor, 'CHW', False)
+    tensor = check_shape(tensor, 'CHW', False)
 
-    if tensor.shape[cIndexed] == 4:  # RGBA
+    if tensor.shape[0] == 4:  # RGBA
         rgb_tensor = tensor[:3]  # Extract RGB channels
         alpha_channel = tensor[3]  # Extract alpha channel
         valid_mask = alpha_channel > 0  # Create a mask for valid pixels
         rgb_tensor = rgb_tensor[:, valid_mask]  # Apply mask to RGB channels
-    elif tensor.shape[cIndexed] == 3:  # RGB
+    elif tensor.shape[0] == 3:  # RGB
         rgb_tensor = tensor
     else:
         raise ValueError(
