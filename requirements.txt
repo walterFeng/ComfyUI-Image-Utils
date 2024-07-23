@@ -5,3 +5,4 @@ tensorflow
 scikit-image
 torchvision
 requests
+opencv-python
