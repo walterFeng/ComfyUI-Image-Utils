@@ -7,7 +7,7 @@ from .common_utils import check_shape
 
 
 def calculate_saturation(tensor):
-    tensor = check_shape(tensor, True)
+    tensor = check_shape(tensor)
 
     image_numpy = tensor.numpy()
 
