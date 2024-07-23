@@ -1,7 +1,7 @@
 import torchvision.transforms as transforms
 from PIL import Image
 
-from nodes.common_utils import check_shape
+from .common_utils import check_shape
 
 
 def color_similarity_checker(tensor, threshold):

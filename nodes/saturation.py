@@ -3,7 +3,7 @@ import numpy as np
 import torchvision.transforms as transforms
 from PIL import Image
 
-from nodes.common_utils import check_shape
+from .common_utils import check_shape
 
 
 def calculate_saturation(tensor):

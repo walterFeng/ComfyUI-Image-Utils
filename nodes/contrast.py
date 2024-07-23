@@ -4,7 +4,7 @@ import torchvision.transforms as transforms
 from PIL import Image
 from skimage import exposure
 
-from nodes.common_utils import check_shape
+from .common_utils import check_shape
 
 
 def is_low_contrast(tensor):
