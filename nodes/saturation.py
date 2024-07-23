@@ -1,13 +1,20 @@
-import os
-
 import cv2
+import numpy as np
+import torch
 import torchvision.transforms as transforms
 from PIL import Image
-import numpy as np
+
 
 def calculate_saturation(tensor):
+    if tensor.ndim == 4:
+        tensor = tensor.squeeze(0)  # Remove batch dimension if present
+
     if tensor.ndim >= 3 and tensor.shape[0] in [1, 2, 3, 4]:
         tensor = np.transpose(tensor, (1, 2, 0))  # (H, W, C)
+
+    if tensor.ndim == 2:  # Handle grayscale images
+        tensor = tensor.unsqueeze(0)  # Add batch dimension
+        tensor = torch.cat([tensor] * 3, dim=0)  # Convert to RGB by replicating the single channel
 
     image_numpy = tensor.numpy()
 
@@ -42,14 +49,14 @@ class CalculateImageSaturation:
             image = transform(image)
 
         saturation = calculate_saturation(image)
-        return image, round(saturation, 3)
+        return image, saturation
 
 
 if __name__ == "__main__":
     print("main")
-    # loader = LoadImageByUrlOrPath()
-    # img_hwc, img_chw = loader.load("../test.png")
-    image = Image.open('./test.png')
+    #loader = LoadImageByUrlOrPath()
+    #image, img_chw = loader.load("../../Desktop/test.png")
+    image = Image.open('../../Desktop/test.png')
     calc = CalculateImageSaturation()
     image, Saturation = calc.load(image)
     print(f"Saturation->: {Saturation}")
