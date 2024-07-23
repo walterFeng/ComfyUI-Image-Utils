@@ -1,11 +1,13 @@
 from .nodes.brightness import CalculateImageBrightness
-from .nodes.saturation import CalculateImageSaturation
-from .nodes.load_image_by_url import LoadImageByUrlOrPath
 from .nodes.color_similarity_checker import ColorSimilarityChecker
+from .nodes.contrast import CalculateImageContrast
+from .nodes.load_image_by_url import LoadImageByUrlOrPath
+from .nodes.saturation import CalculateImageSaturation
 
 NODE_CLASS_MAPPINGS = {
-    "Calculate Image Brightness": CalculateImageBrightness,
     "Load Image (By Url)": LoadImageByUrlOrPath,
     "Color Similarity Checker": ColorSimilarityChecker,
+    "Calculate Image Brightness": CalculateImageBrightness,
     "Calculate Image Saturation": CalculateImageSaturation,
+    "Calculate Image Contrast": CalculateImageContrast,
 }

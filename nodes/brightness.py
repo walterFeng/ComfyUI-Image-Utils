@@ -1,12 +1,10 @@
 import os
 
-import numpy as np
-import torch
 import torchvision.transforms as transforms
 from PIL import Image
 
+from nodes.common_utils import check_shape
 
-# from nodes.load_image_by_url import LoadImageByUrlOrPath
 
 def load_image(image_source):
     img = Image.open(image_source)
@@ -15,25 +13,14 @@ def load_image(image_source):
 
 
 def calculate_brightness(tensor):
-    if tensor.ndim == 4:
-        tensor = tensor.squeeze(0)  # Remove batch dimension if present
+    tensor, cIndexed = check_shape(tensor, 'CHW', False)
 
-    if tensor.ndim >= 3 and tensor.shape[2] in [1, 2, 3, 4]:
-        tensor = np.transpose(tensor, (2, 0, 1))  # (C, H, W)
-
-    if tensor.ndim == 2:  # Handle grayscale images
-        tensor = tensor.unsqueeze(0)  # Add batch dimension
-        tensor = torch.cat([tensor] * 3, dim=0)  # Convert to RGB by replicating the single channel
-
-    if tensor.shape[0] == 1:
-        tensor = torch.cat([tensor] * 3, dim=0)
-
-    if tensor.shape[0] == 4:  # RGBA
+    if tensor.shape[cIndexed] == 4:  # RGBA
         rgb_tensor = tensor[:3]  # Extract RGB channels
         alpha_channel = tensor[3]  # Extract alpha channel
         valid_mask = alpha_channel > 0  # Create a mask for valid pixels
         rgb_tensor = rgb_tensor[:, valid_mask]  # Apply mask to RGB channels
-    elif tensor.shape[0] == 3:  # RGB
+    elif tensor.shape[cIndexed] == 3:  # RGB
         rgb_tensor = tensor
     else:
         raise ValueError(

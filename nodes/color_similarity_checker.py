@@ -1,16 +1,11 @@
 import torchvision.transforms as transforms
 from PIL import Image
 
+from nodes.common_utils import check_shape
+
 
 def color_similarity_checker(tensor, threshold):
-    if tensor.ndim == 4:
-        tensor = tensor.squeeze(0)  # Remove batch dimension if present
-
-    if tensor.ndim >= 3 and tensor.shape[0] in [1, 2, 3, 4]:
-        tensor = tensor.permute(1, 2, 0)  # shape to (H, W, C)
-
-    # Delete alpha channel
-    tensor = tensor[:, :, :3]
+    tensor = check_shape(tensor)
 
     # Convert Tensor to a NumPy array
     np_image = (tensor * 255).numpy()
