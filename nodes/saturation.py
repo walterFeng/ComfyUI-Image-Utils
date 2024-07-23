@@ -16,6 +16,10 @@ def calculate_saturation(tensor):
         tensor = tensor.unsqueeze(0)  # Add batch dimension
         tensor = torch.cat([tensor] * 3, dim=0)  # Convert to RGB by replicating the single channel
 
+    # Convert to grayscale, ensuring correct handling of PNG with alpha channel
+    if tensor.shape[2] == 4:  # Check if image has an alpha channel
+        tensor = tensor[:, :, :3]  # to RGB
+
     image_numpy = tensor.numpy()
 
     # to HSV
