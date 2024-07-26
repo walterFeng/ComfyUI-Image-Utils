@@ -3,7 +3,7 @@ import numpy as np
 import torchvision.transforms as transforms
 from PIL import Image
 
-from common_utils import check_shape
+from .common_utils import check_shape
 
 
 class DisplaceFilter:
