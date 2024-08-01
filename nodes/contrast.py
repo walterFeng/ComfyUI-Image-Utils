@@ -2,60 +2,28 @@ import cv2
 import numpy as np
 import torchvision.transforms as transforms
 from PIL import Image
-from skimage import exposure
+from torchvision.transforms.functional import to_pil_image
 
 from .common_utils import check_shape
 
 
-def is_low_contrast(tensor):
-    tensor = check_shape(tensor)
+def calculate_contrast_tensor(tensor_image):
+    # Convert to PIL Image for easier handling
+    pil_image = to_pil_image(tensor_image)
 
-    image_numpy = tensor.numpy()
+    # Use the PIL method
+    # Convert to grayscale
+    grayscale_image = pil_image.convert('L')
 
-    image = cv2.cvtColor(image_numpy, cv2.COLOR_RGB2GRAY)
+    # Convert to numpy array
+    image_array = np.array(grayscale_image)
 
-    isContrast = exposure.is_low_contrast(image)
-    print("Is low contrast:", isContrast)
-    return isContrast
+    # Calculate mean luminance
+    mean_luminance = np.mean(image_array)
 
-
-def calculate_rms_contrast(tensor):
-    """
-    ## Root Mean Square Contrast
-    """
-
-    tensor = check_shape(tensor)
-
-    image_numpy = tensor.numpy()
-
-    image = cv2.cvtColor(image_numpy, cv2.COLOR_RGB2GRAY)
-
-    mean = np.mean(image)
-
-    rms_contrast = np.sqrt(np.mean((image - mean) ** 2))
-    print("RMS Contrast:", rms_contrast)
-
+    # Calculate RMS contrast
+    rms_contrast = np.sqrt(np.mean((image_array - mean_luminance) ** 2))
     return rms_contrast
-
-
-def calculate_intensity_range_contrast(tensor):
-    """
-    ## Intensity range contrast
-    """
-
-    tensor = check_shape(tensor)
-
-    image_numpy = tensor.numpy()
-
-    image = cv2.cvtColor(image_numpy, cv2.COLOR_RGB2GRAY)
-
-    min_intensity = np.min(image)
-    max_intensity = np.max(image)
-
-    contrast = max_intensity - min_intensity
-
-    print("Contrast:", contrast)
-    return contrast
 
 
 class CalculateImageContrast:
@@ -67,8 +35,8 @@ class CalculateImageContrast:
             }
         }
 
-    RETURN_TYPES = ("IMAGE", "BOOLEAN", "FLOAT", "FLOAT")
-    RETURN_NAMES = ("IMAGE", "Is Low Contrast", "RMS Contrast", "Contrast")
+    RETURN_TYPES = ("IMAGE", "FLOAT", "FLOAT")
+    RETURN_NAMES = ("IMAGE", "Contrast", "Contrast Percentage")
     FUNCTION = "load"
     CATEGORY = "image"
 
@@ -77,15 +45,57 @@ class CalculateImageContrast:
             transform = transforms.ToTensor()
             image = transform(image)
 
-        isLowContrast = is_low_contrast(image)
-        rmsContrast = calculate_rms_contrast(image)
-        contrast = calculate_intensity_range_contrast(image)
-        return (image, isLowContrast, rmsContrast, contrast)
+        tensor_image = check_shape(image, "CHW", True)
+        rmsContrast = calculate_contrast_tensor(tensor_image)
+        contrast_percentage = rmsContrast / 255.0
+        return (image, rmsContrast, contrast_percentage)
 
 
 if __name__ == "__main__":
     print("main")
-    image = Image.open('./test.png')
+    image_path = './test.png'
+    image = Image.open(image_path)
     calc = CalculateImageContrast()
-    (image, isLowContrast, rmsContrast, contrast) = calc.load(image)
-    print(f"Contrast->: {isLowContrast}: {rmsContrast}: {isLowContrast}")
+    (image, rmsContrast, contrast_percentage) = calc.load(image)
+    print(f"Contrast->: {rmsContrast}: {contrast_percentage}")
+
+    # Load the new image
+    image_path_black_dress = image_path
+    image_black_dress = cv2.imread(image_path_black_dress, cv2.IMREAD_GRAYSCALE)
+
+    cropped_image_black_dress = image_black_dress  # [50:900, 100:400]
+
+    # print("image_array right:", cropped_image_black_dress)
+    # Calculate the mean luminance of the cropped image
+    mean_luminance_black_dress = np.mean(cropped_image_black_dress)
+
+    # Calculate RMS contrast
+    rms_contrast_black_dress = np.sqrt(np.mean((cropped_image_black_dress - mean_luminance_black_dress) ** 2))
+    print(f"RMS Contrast 1 : {rms_contrast_black_dress / 255.0}")
+
+    image = Image.open(image_path)  # .convert("RGBA")
+    transform = transforms.ToTensor()
+    tensor_image = transform(image)
+    tensor_image = check_shape(tensor_image, "CHW", True)
+    contrast = calculate_contrast_tensor(tensor_image)
+    print(f"RMS Contrast 2 : {contrast / 255.0}")
+
+    img = Image.open(image_path).convert('L')  # 转换为灰度图像
+
+    img_array = np.array(img)
+
+    contrast = np.std(img_array)
+    print(f"RMS Contrast 3 : {contrast / 255.0}")
+
+    img = Image.open(image_path)
+
+    if img.mode == 'RGBA':
+        r, g, b, a = img.split()
+        img = Image.merge('RGB', (r, g, b)).convert('L')
+    elif img.mode == 'RGB':
+        img = img.convert('L')
+
+    img_array = np.array(img)
+
+    contrast = np.std(img_array)
+    print(f"RMS Contrast 4 : {contrast / 255.0}")
