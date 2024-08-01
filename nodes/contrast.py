@@ -76,8 +76,8 @@ class CalculateImageContrast:
             }
         }
 
-    RETURN_TYPES = ("IMAGE", "BOOLEAN", "FLOAT", "FLOAT")
-    RETURN_NAMES = ("IMAGE", "Is Low Contrast", "RMS Contrast", "Contrast")
+    RETURN_TYPES = ("IMAGE", "FLOAT", "FLOAT")
+    RETURN_NAMES = ("IMAGE", "RMS Contrast", "Contrast")
     FUNCTION = "load"
     CATEGORY = "image"
 
