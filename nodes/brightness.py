@@ -51,7 +51,7 @@ class CalculateImageBrightness:
             image = transform(image)
 
         brightness = calculate_brightness(image)
-        inverted_brightness = 0.5 / brightness
+        inverted_brightness = 0.5 / brightness if brightness > 0 else 0
         return (image, round(brightness, 3), round(inverted_brightness, 3))
 
 
