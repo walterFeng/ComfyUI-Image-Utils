@@ -1,9 +1,10 @@
-import torchvision.transforms as transforms
-from PIL import Image
-import cv2
 import sys
+
+import cv2
 import numpy as np
 import torch
+import torchvision.transforms as transforms
+from PIL import Image
 
 from .common_utils import check_shape
 
@@ -27,7 +28,6 @@ def mask_crop(input_tensor, padding):
     h1, w1, _ = image.shape
 
     # 初始化矩形区域的边界
-    padding = 100
     x1, y1, r1, b1 = [sys.maxsize, sys.maxsize, 0, 0]
 
     # 遍历每个轮廓
@@ -50,10 +50,10 @@ def mask_crop(input_tensor, padding):
     cv2.rectangle(result, (x1, y1), (r1, b1), 255, -1)
 
     # 将结果转换回Tensor
-    result_tensor = torch.from_numpy(result).unsqueeze(-1).float()
+    result_tensor = torch.from_numpy(result).float() / 255.0
 
-    # 返回Tensor结果
     return result_tensor
+
 
 class CropMask:
     @classmethod
@@ -83,4 +83,10 @@ if __name__ == "__main__":
     testImage = Image.open('./test.png')
     calc = CropMask()
     testImage = calc.load(testImage, 10)
-    print(f"testImage->: {testImage}")
+    # 将张量转换为PIL图像的函数
+    toPIL = transforms.ToPILImage()
+    # 将张量转换为PIL图像
+    pic = toPIL(testImage)
+    # 将PIL图像保存为JPEG文件
+    pic.save('output.png')
+    print(f"testImage->: {testImage.shape}")
