@@ -38,10 +38,16 @@ def mask_crop(input_tensor, padding):
         b = y + h
 
         # 更新矩形的边界
-        x1 = np.max([np.min([x, x1]) - padding, 0])
-        y1 = np.max([np.min([y, y1]) - padding, 0])
-        r1 = np.min([np.max([r, r1]) + padding, w1])
-        b1 = np.min([np.max([b, b1]) + padding, h1])
+        x1 = np.min([x, x1])
+        y1 = np.min([y, y1])
+        r1 = np.max([r, r1])
+        b1 = np.max([b, b1])
+
+    # 防止超出图片边界
+    x1 = np.max([x1 - padding, 0])
+    y1 = np.max([y1 - padding, 0])
+    r1 = np.min([r1 + padding, w1])
+    b1 = np.min([b1 + padding, h1])
 
     # 创建一个全零的图像
     result = np.zeros_like(binary)
@@ -52,6 +58,8 @@ def mask_crop(input_tensor, padding):
     # 将结果转换回Tensor
     result_tensor = torch.from_numpy(result).float() / 255.0
 
+    result_tensor = check_shape(result_tensor)
+    result_tensor = result_tensor.unsqueeze(0).unsqueeze(0)
     return result_tensor
 
 
@@ -83,10 +91,10 @@ if __name__ == "__main__":
     testImage = Image.open('./test.png')
     calc = CropMask()
     testImage = calc.load(testImage, 10)
+    print(f"testImage->: {testImage.shape}")
     # 将张量转换为PIL图像的函数
     toPIL = transforms.ToPILImage()
     # 将张量转换为PIL图像
     pic = toPIL(testImage)
     # 将PIL图像保存为JPEG文件
     pic.save('output.png')
-    print(f"testImage->: {testImage.shape}")

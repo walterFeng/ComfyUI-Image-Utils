@@ -51,8 +51,8 @@ def check_shape(tensor, to_type="HWC", remove_alpha=True):
         tensor = np.transpose(tensor, indexed)  # (H, W, C)
 
     if tensor.ndim == 2:  # Handle grayscale images
-        tensor = tensor.unsqueeze(0)  # Add batch dimension
-        tensor = torch.cat([tensor] * 3, dim=0)  # Convert to RGB by replicating the single channel
+        tensor = tensor.unsqueeze(2)  # Add batch dimension
+        tensor = torch.cat([tensor] * 3, dim=2)  # Convert to RGB by replicating the single channel
 
     if tensor.shape[c_indexed] == 1:
         tensor = torch.cat([tensor] * 3, dim=0)
