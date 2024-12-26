@@ -70,7 +70,8 @@ def load_image(image_source):
         print(image_source)
         img = tryUrlOpen(image_source)
     else:
-        img = Image.open(image_source)
+        file_obj = io.open("data.txt", mode="rb")
+        img = io.BytesIO(file_obj.read())
     return img
 
 
