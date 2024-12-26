@@ -1,0 +1,3 @@
+[aliyun access]
+access_key_id=yourKey (get from https://help.aliyun.com/zh/viapi/developer-reference/api-w9sg6h)
+access_key_secret=yourKeySecret
