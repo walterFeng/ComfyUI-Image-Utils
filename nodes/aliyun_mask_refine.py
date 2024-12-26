@@ -85,8 +85,8 @@ class RefineMask:
             }
         }
 
-    RETURN_TYPES = ("IMAGE",)
-    RETURN_NAMES = ("mask",)
+    RETURN_TYPES = ("IMAGE", "MASK", "STRING")
+    RETURN_NAMES = ("image", "mask", "masked_url")
     FUNCTION = "load"
     CATEGORY = "image"
 
