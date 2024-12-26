@@ -80,8 +80,8 @@ class RefineMask:
     def INPUT_TYPES(cls):
         return {
             "required": {
-                "image_url": ("STRING", {"multiline": True, "dynamicPrompts": False}),
-                "mask_url": ("STRING", {"multiline": True, "dynamicPrompts": False}),
+                "image_url": ("STRING", {"multiline": True}),
+                "mask_url": ("STRING", {"multiline": True}),
             }
         }
 
@@ -93,7 +93,8 @@ class RefineMask:
     def load(self, image_url, mask_url):
         image_loaded, mask_loaded, masked_url = refine_mask(image_url, mask_url)
         image, _ = pil2tensor(image_loaded)
-        mask_image, mask = pil2tensor(mask_loaded)
+        mask_image, _ = pil2tensor(mask_loaded)
+        mask = mask_image > 0.5
         return image, mask, masked_url
 
 
