@@ -21,3 +21,6 @@ nodes/__pycache__/
 
 # test
 test.png
+
+# config
+*.ini

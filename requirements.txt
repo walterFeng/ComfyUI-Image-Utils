@@ -6,3 +6,4 @@ scikit-image
 torchvision
 requests
 opencv-python
+alibabacloud_imageseg20191230
