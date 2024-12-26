@@ -2,6 +2,7 @@ import configparser
 import io
 import os
 from urllib.request import urlopen
+import torchvision.transforms as transforms
 
 from PIL import Image
 from alibabacloud_imageseg20191230.client import Client
@@ -93,18 +94,25 @@ class RefineMask:
     def load(self, image_url, mask_url):
         image_loaded, mask_loaded, masked_url = refine_mask(image_url, mask_url)
         image, _ = pil2tensor(image_loaded)
-        mask_image, _ = pil2tensor(mask_loaded)
-        mask = mask_image > 0.5
+        transform = transforms.ToTensor()
+        mask = transform(mask_loaded)
         return image, mask, masked_url
 
 
 if __name__ == "__main__":
     print("main")
-    url = 'https://viapi-test-bj.oss-cn-beijing.aliyuncs.com/viapi-3.0domepic/imageseg/RefineMask/RefineMask1.jpg'
-    urlMask = 'https://viapi-test-bj.oss-cn-beijing.aliyuncs.com/viapi-3.0domepic/imageseg/RefineMask/RefineMask6.jpg'
-    image_loaded, mask_loaded, masked_url = refine_mask(url, urlMask)
-    image, _ = pil2tensor(image_loaded)
-    mask_image, mask = pil2tensor(mask_loaded)
-    print(image)
-    print(mask)
-    print(masked_url)
+    image_url1 = 'http://oss-shared.oss-cn-beijing.aliyuncs.com/uploads/test-111-img-1226.jpg'
+    mask_url1 = 'http://oss-shared.oss-cn-beijing.aliyuncs.com/uploads/test-111-img-1226-mask.png'
+    image_loaded1, mask_loaded1, masked_url1 = refine_mask(image_url1, mask_url1)
+    image1, _ = pil2tensor(image_loaded1)
+    transform1 = transforms.ToTensor()
+    mask1 = transform1(mask_loaded1)
+    print(image1)
+    # 将张量转换为PIL图像的函数
+    toPIL = transforms.ToPILImage()
+    # 将张量转换为PIL图像
+    pic = toPIL(mask1)
+    # 将PIL图像保存为JPEG文件
+    pic.save('mask.jpg')
+    print(mask1)
+    print(masked_url1)
