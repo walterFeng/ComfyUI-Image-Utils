@@ -44,8 +44,8 @@ def refine_mask(url, url_mask):
         response = client.refine_mask_advance(refine_mask_request, runtime)
         print(response.body)
         data = response.body
-        mask_url = data.data.elements[0].image_url
-        mask = load_image(mask_url)
+        masked_url = data.data.elements[0].image_url
+        mask = load_image(masked_url)
     except Exception as error:
         print(error)
 
@@ -72,7 +72,7 @@ def load_image(image_source):
         print(image_source)
         img = try_url_open(image_source)
     else:
-        file_obj = io.open("data.txt", mode="rb")
+        file_obj = io.open(image_source, mode="rb")
         img = io.BytesIO(file_obj.read())
     return img
 
