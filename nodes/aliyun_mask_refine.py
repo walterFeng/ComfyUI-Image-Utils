@@ -84,6 +84,7 @@ class RefineMask:
             "required": {
                 "image_url": ("STRING", {"multiline": True}),
                 "mask_url": ("STRING", {"multiline": True}),
+                "append_query": ("STRING", {"multiline": True}),
             }
         }
 
@@ -92,7 +93,9 @@ class RefineMask:
     FUNCTION = "load"
     CATEGORY = "image"
 
-    def load(self, image_url, mask_url):
+    def load(self, image_url, mask_url, append_query):
+        image_url = image_url + ("?" if image_url.find("?") == -1 else "&") + append_query
+        mask_url = mask_url + ("?" if mask_url.find("?") == -1 else "&") + append_query
         image_loaded, mask_loaded, masked_url = refine_mask(image_url, mask_url)
         image, _ = pil2tensor(image_loaded)
         transform = transforms.ToTensor()
