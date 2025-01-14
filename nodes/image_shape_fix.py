@@ -1,3 +1,5 @@
+from typing import List
+
 from PIL.Image import Image
 import torchvision.transforms as transforms
 
@@ -18,6 +20,8 @@ class ImageShapeFix:
     CATEGORY = "IMAGE"
 
     def load(self, image):
+        if isinstance(image, List):
+            image = image[0]
         if isinstance(image, Image):
             transform = transforms.ToTensor()
             image = transform(image)
