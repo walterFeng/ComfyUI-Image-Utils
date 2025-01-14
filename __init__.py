@@ -6,6 +6,7 @@ from .nodes.load_image_by_url import LoadImageByUrlOrPath
 from .nodes.saturation import CalculateImageSaturation
 from .nodes.displacement import DisplaceFilter
 from .nodes.aliyun_mask_refine import RefineMask
+from .nodes.image_shape_fix import ImageShapeFix
 
 NODE_CLASS_MAPPINGS = {
     "Load Image (By Url)": LoadImageByUrlOrPath,
@@ -15,5 +16,6 @@ NODE_CLASS_MAPPINGS = {
     "Calculate Image Contrast": CalculateImageContrast,
     "Crop Mask Util": CropMask,
     "Mask Refine (Aliyun)": RefineMask,
+    "Image Fix (tensor shape convert)": ImageShapeFix,
     "Displace Filter": DisplaceFilter,
 }
