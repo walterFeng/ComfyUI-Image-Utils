@@ -14,15 +14,26 @@ def pil2tensor(img):
 
 
 def load_image(image_source):
-    if image_source.startswith('http'):
-        print(image_source)
-        response = requests.get(image_source)
-        img = Image.open(BytesIO(response.content)).convert("RGBA")
-        file_name = image_source.split('/')[-1]
-    else:
-        img = Image.open(image_source).convert("RGBA")
-        file_name = os.path.basename(image_source)
-    return img, file_name
+    error_count = 0
+    img_io = None
+    file_name = None
+    while True:
+        try:
+            if image_source.startswith('http'):
+                print(image_source)
+                response = requests.get(image_source)
+                img_io = Image.open(BytesIO(response.content)).convert("RGBA")
+                file_name = image_source.split('/')[-1]
+            else:
+                img_io = Image.open(image_source).convert("RGBA")
+                file_name = os.path.basename(image_source)
+            break
+        except Exception as e:
+            print(e)
+            error_count += 1
+            if error_count >= 5:
+                break
+    return img_io, file_name
 
 
 class LoadImageByUrlOrPath:
@@ -35,7 +46,7 @@ class LoadImageByUrlOrPath:
         }
 
     RETURN_TYPES = ("IMAGE", "IMAGE")
-    RETURN_NAMES = ("IMAGE (H,W,C)", "image (C,H,W)")
+    RETURN_NAMES = ("IMAGE (B,H,W,C)", "image (B,C,H,W)")
     FUNCTION = "load"
     CATEGORY = "image"
 
@@ -43,7 +54,7 @@ class LoadImageByUrlOrPath:
         print(url_or_path)
         img, name = load_image(url_or_path)
         img_hwc, img_chw = pil2tensor(img)
-        return (img_hwc, img_chw)
+        return (img_hwc.unsqueeze(0), img_chw.unsqueeze(0))
 
 
 if __name__ == "__main__":
