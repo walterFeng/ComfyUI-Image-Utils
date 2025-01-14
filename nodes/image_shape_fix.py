@@ -18,7 +18,7 @@ class ImageShapeFix:
     CATEGORY = "IMAGE"
 
     def load(self, image):
-        if isinstance(image, Image.Image):
+        if isinstance(image, Image):
             transform = transforms.ToTensor()
             image = transform(image)
         image1 = check_shape(image, "HWC")
