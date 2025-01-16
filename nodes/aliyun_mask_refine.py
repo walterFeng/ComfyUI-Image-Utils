@@ -10,7 +10,7 @@ from alibabacloud_imageseg20191230.models import RefineMaskAdvanceRequest
 from alibabacloud_tea_openapi.models import Config
 from alibabacloud_tea_util.models import RuntimeOptions
 
-from .common_utils import pil2tensor
+from .common_utils import pil2tensor, check_shape, image_to_mask
 
 
 def refine_mask(url, url_mask):
@@ -99,7 +99,7 @@ class RefineMask:
         image_loaded, mask_loaded, masked_url = refine_mask(image_url, mask_url)
         image, _ = pil2tensor(image_loaded)
         transform = transforms.ToTensor()
-        mask = transform(mask_loaded)
+        mask = image_to_mask(check_shape(transform(mask_loaded)).unsqueeze(0), 'red')
         return image, mask, masked_url
 
 
