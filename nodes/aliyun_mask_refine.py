@@ -99,7 +99,7 @@ class RefineMask:
         image_loaded, mask_loaded, masked_url = refine_mask(image_url, mask_url)
         image, _ = pil2tensor(image_loaded)
         transform = transforms.ToTensor()
-        mask = image_to_mask(check_shape(transform(mask_loaded)).unsqueeze(0), 'red')
+        mask = transform(mask_loaded)
         return image, mask, masked_url
 
 
