@@ -10,18 +10,19 @@ from alibabacloud_imageseg20191230.models import RefineMaskAdvanceRequest
 from alibabacloud_tea_openapi.models import Config
 from alibabacloud_tea_util.models import RuntimeOptions
 
-from .common_utils import pil2tensor
+from .common_utils import pil2tensor, check_shape, image_to_mask
 
-def refine_mask(url, urlMask):
+
+def refine_mask(url, url_mask):
     access_key_id = None
     access_key_secret = None
     try:
-        thisfolder = os.path.dirname(os.path.abspath(__file__))
-        initfile = os.path.join(thisfolder, '../aliyun.ini')
-        configReader = configparser.ConfigParser()
-        configReader.read(initfile, encoding='utf-8')
-        access_key_id = configReader.get('aliyun access', 'access_key_id')
-        access_key_secret = configReader.get('aliyun access', 'access_key_secret')
+        this_folder = os.path.dirname(os.path.abspath(__file__))
+        init_file = os.path.join(this_folder, '../aliyun.ini')
+        config_reader = configparser.ConfigParser()
+        config_reader.read(init_file, encoding='utf-8')
+        access_key_id = config_reader.get('aliyun access', 'access_key_id')
+        access_key_secret = config_reader.get('aliyun access', 'access_key_secret')
     except Exception as error:
         print(error)
     config = Config(
@@ -30,48 +31,48 @@ def refine_mask(url, urlMask):
         endpoint='imageseg.cn-shanghai.aliyuncs.com',
         region_id='cn-shanghai'
     )
-    imgUrl = load_image(url)
-    imgMaskUrl = load_image(urlMask)
+    img_url = load_image(url)
+    img_mask_url = load_image(url_mask)
     refine_mask_request = RefineMaskAdvanceRequest()
-    refine_mask_request.image_urlobject = imgUrl
-    refine_mask_request.mask_image_urlobject = imgMaskUrl
+    refine_mask_request.image_urlobject = img_url
+    refine_mask_request.mask_image_urlobject = img_mask_url
     runtime = RuntimeOptions()
     mask = None
-    mask_url = ''
+    masked_url = url_mask
     try:
         client = Client(config)
         response = client.refine_mask_advance(refine_mask_request, runtime)
         print(response.body)
         data = response.body
-        mask_url = data.data.elements[0].image_url
-        mask = load_image(mask_url)
+        masked_url = data.data.elements[0].image_url
+        mask = load_image(masked_url)
     except Exception as error:
         print(error)
 
-    return Image.open(imgUrl), Image.open(mask if mask else imgMaskUrl), mask_url
+    return Image.open(img_url), Image.open(mask if mask else img_mask_url), masked_url
 
 
-def tryUrlOpen(url):
-    errorCount = 0
-    imgIO = None
+def try_url_open(url):
+    error_count = 0
+    img_io = None
     while True:
         try:
-            imgIO = io.BytesIO(urlopen(url).read())
+            img_io = io.BytesIO(urlopen(url).read())
             break
         except Exception as e:
-            errorCount += 1
+            error_count += 1
             print(e)
-            if errorCount >= 5:
+            if error_count >= 5:
                 break
-    return imgIO
+    return img_io
 
 
 def load_image(image_source):
     if image_source.startswith('http'):
         print(image_source)
-        img = tryUrlOpen(image_source)
+        img = try_url_open(image_source)
     else:
-        file_obj = io.open("data.txt", mode="rb")
+        file_obj = io.open(image_source, mode="rb")
         img = io.BytesIO(file_obj.read())
     return img
 
@@ -83,6 +84,7 @@ class RefineMask:
             "required": {
                 "image_url": ("STRING", {"multiline": True}),
                 "mask_url": ("STRING", {"multiline": True}),
+                "append_query": ("STRING", {"multiline": True}),
             }
         }
 
@@ -91,7 +93,9 @@ class RefineMask:
     FUNCTION = "load"
     CATEGORY = "image"
 
-    def load(self, image_url, mask_url):
+    def load(self, image_url, mask_url, append_query):
+        image_url = image_url + ("?" if image_url.find("?") == -1 else "&") + append_query
+        mask_url = mask_url + ("?" if mask_url.find("?") == -1 else "&") + append_query
         image_loaded, mask_loaded, masked_url = refine_mask(image_url, mask_url)
         image, _ = pil2tensor(image_loaded)
         transform = transforms.ToTensor()
@@ -101,8 +105,8 @@ class RefineMask:
 
 if __name__ == "__main__":
     print("main")
-    image_url1 = 'http://oss-shared.oss-cn-beijing.aliyuncs.com/uploads/test-111-img-1226.jpg'
-    mask_url1 = 'http://oss-shared.oss-cn-beijing.aliyuncs.com/uploads/test-111-img-1226-mask.png'
+    image_url1 = 'https://viapi-test-bj.oss-cn-beijing.aliyuncs.com/viapi-3.0domepic/imageseg/RefineMask/RefineMask1.jpg'
+    mask_url1 = 'https://viapi-test-bj.oss-cn-beijing.aliyuncs.com/viapi-3.0domepic/imageseg/RefineMask/RefineMask6.jpg'
     image_loaded1, mask_loaded1, masked_url1 = refine_mask(image_url1, mask_url1)
     image1, _ = pil2tensor(image_loaded1)
     transform1 = transforms.ToTensor()

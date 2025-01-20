@@ -61,3 +61,8 @@ def check_shape(tensor, to_type="HWC", remove_alpha=True):
     if remove_alpha and tensor.shape[c_indexed] == 4:  # Check if image has an alpha channel
         tensor = tensor[:, :, :3] if to_type == "HWC" else tensor[:3, :, :]  # to RGB
     return tensor
+
+def image_to_mask(image, channel):
+    channels = ["red", "green", "blue", "alpha"]
+    mask = image[:, :, :, channels.index(channel)]
+    return (mask,)
