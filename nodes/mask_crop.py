@@ -44,10 +44,10 @@ def mask_crop(input_tensor, padding):
         b1 = np.max([b, b1])
 
     # 防止超出图片边界
-    x1 = np.max([x1 - padding, 0])
-    y1 = np.max([y1 - padding, 0])
-    r1 = np.min([r1 + padding, w1])
-    b1 = np.min([b1 + padding, h1])
+    x1 = int(np.max([x1 - padding, 0]))
+    y1 = int(np.max([y1 - padding, 0]))
+    r1 = int(np.min([r1 + padding, w1]))
+    b1 = int(np.min([b1 + padding, h1]))
 
     # 创建一个全零的图像
     result = np.zeros_like(binary)
